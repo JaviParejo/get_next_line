@@ -6,7 +6,7 @@
 /*   By: jparejo- <jparejo-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/01 16:33:59 by jparejo-          #+#    #+#             */
-/*   Updated: 2021/12/10 18:24:00 by jparejo-         ###   ########.fr       */
+/*   Updated: 2021/12/14 19:14:46 by jparejo-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,11 +82,11 @@ char	*ft_strjoin(char const *s1, char const *s2)
 
 	if (!s1 || !s2)
 		return (NULL);
-	len = ft_strlen((char *)s1) + ft_strlen((char *)s2);
-	ret = (char *)malloc((len + 1) * sizeof(char));
+	len = ft_strlen(s1) + ft_strlen(s2);
+	ret = malloc(sizeof(char) * (len + 1));
 	if (ret == NULL)
 		return (NULL);
-	ft_strlcpy(ret, s1, ft_strlen((char *)s1) + 1);
+	ft_strlcpy(ret, s1, ft_strlen(s1) + 1);
 	ft_strlcat(ret, s2, len + 1);
 	free((char *)s1);
 	return (ret);
@@ -96,28 +96,60 @@ char	*get_next_line(int fd)
 {
 	char	*buf;
 	int		count;
+	int 	n;
 	static char	*mem;
-
+	
 	count = 1;
-	buf = malloc(sizeof(char)*20);
-	mem = malloc(sizeof(char)*1);
+	n = 0;
+	buf = malloc(sizeof(char) * 20);
+	mem = malloc(sizeof(char) * 1);
 	while(count > 0)
-	{
-		count = read(fd, buf, 3);
+	{	
+		count = read(fd, buf, 10);
 		buf[count] = '\0';
 		mem = ft_strjoin(mem, buf);
+		while(n < count || mem[n] == '\n')
+		{
+			write(1, mem + n, 1);
+			n++;
+		}
 	}
-	printf("%s", mem);
+	// printf("%s", mem);
 	free(mem);
 	return (buf);
 }
 
-int 	main(void)
-{	
-	int	fd;
+int		main(void)
+{
+	int		fd;
+	char	*line;
+	int		i;
 
-	fd = open("./data", O_RDONLY, 0);
-	get_next_line(fd);
-	close(fd);
-	system("leaks a.out");
+	i = 0;
+	fd = open("./data", O_RDONLY);
+	while (i < 50)
+	{
+		line = (char *)malloc(sizeof(*line) * 1);
+		get_next_line(fd);
+		printf("|%s|\n", line);
+		i++;
+	}
 }
+
+// int 	main(void)
+// {	
+// 	int		fd;
+// 	FILE *f;
+// 	int c;
+	
+// 	f = fopen("./data", "r");
+//    	c = getc(f);
+// 	fd = open("./data", O_RDONLY);
+// 	while (c != EOF)
+// 		get_next_line(fd, 10);
+// 	// fd = open("./data", O_RDONLY);
+// 	// while (!feof(fd))
+// 	// 	get_next_line(fd, 10);
+// 	close(fd);
+// 	// system("leaks a.out");
+// }
